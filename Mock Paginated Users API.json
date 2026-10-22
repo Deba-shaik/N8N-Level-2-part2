@@ -1,0 +1,88 @@
+{
+  "name": "Mock Paginated Users API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mock/api/users",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f314fb8c-c349-46f7-83fc-60c9dac2736d",
+      "name": "Webhook",
+      "webhookId": "de56a0af-7c31-42fa-ad20-a9535a037bc5"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst query = $input.first().json.query || {};\n\nconst page = Math.max(1, Number(query.page || 1));\nconst limit = Math.max(1, Number(query.limit || 10));\n\nconst users = [];\n\nfor (let i = 1; i <= 23; i++) {\n  users.push({\n    id: i,\n    name: `User ${i}`,\n    email: i === 13\n      ? \"bad-email-format\"\n      : `user${i}@enterprise-test.io`,\n    department: i % 2 === 0\n      ? \"Engineering\"\n      : \"Operations\"\n  });\n}\n\nconst start = (page - 1) * limit;\nconst pageUsers = users.slice(start, start + limit);\n\nreturn [{\n  json: {\n    items: pageUsers,\n    currentPage: page,\n    returnedCount: pageUsers.length\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c51594ea-9b79-435a-bfac-3e85568ccd95",
+      "name": "Generate_23_Users"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.items }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "778432bc-3638-4412-a52b-15cd084600dc",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate_23_Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate_23_Users": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "08c629c4-dd5e-4aa6-8483-5e6cfc9d9e3a",
+  "meta": {
+    "instanceId": "a03c7678428ef19ededbf912f16f7d5798ec7b9ab4c17f2a2def6a9e791e7215"
+  },
+  "nodeGroups": [],
+  "id": "SvtXfV3TYKfOCCiC",
+  "tags": []
+}
